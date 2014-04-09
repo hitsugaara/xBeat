@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*******************************************************************************
+
+   Copyright: 2011 Android Aalto Community
+
+   This file is part of SoundFuse.
+
+   SoundFuse is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+
+   SoundFuse is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with SoundFuse; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+ ******************************************************************************/
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.RnD.xBeat"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="7"
+        android:targetSdkVersion="10" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:theme="@style/CustomButton" >
+        <activity
+            android:name="com.RnD.xBeat.BoardActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="landscape" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.RnD.xBeat.AndroidExplorer"
+            android:label="Select file"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name="com.RnD.xBeat.Preferences"
+            android:label="Preferences" >
+        </activity>
+        <activity
+            android:name="com.RnD.xBeat.AddColumnPicker"
+            android:label="Add column"
+            android:theme="@android:style/Theme.Dialog" >
+        </activity>
+    </application>
+
+</manifest>
