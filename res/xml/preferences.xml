@@ -2,7 +2,7 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:title="Languages">
+        android:title="Tempo">
         <EditTextPreference
             android:title="BPM"
             android:key="bpm"
