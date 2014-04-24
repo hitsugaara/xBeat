@@ -22,7 +22,9 @@
 
 package com.RnD.xBeat.sequencer;
 
+
 import android.content.Context;
+
 import android.media.AudioManager;
 import android.media.SoundPool;
 
@@ -65,6 +67,8 @@ public class Sequencer {
     private OnBPMListener mOnBPMListener;
 
     private Matrix matrix;
+    
+    
 
     public interface OnBPMListener {
         /**
@@ -226,6 +230,8 @@ public class Sequencer {
         } else {
             play();
         }
+        
     }
 
+    
 }

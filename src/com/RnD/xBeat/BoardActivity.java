@@ -149,7 +149,7 @@ public class BoardActivity extends Activity {
             case 1:
                 if (resultCode == 1) {
                     // Coming from preferences
-                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                    SharedPreferences prefs = getSharedPreferences("preferences",0);
                     String newBpm = prefs.getString("bpm", "120");
                     Log.e("TEST", "new bpm is " + Integer.parseInt(newBpm));
                     sequencer.setBpm(Integer.parseInt(newBpm));
@@ -169,6 +169,13 @@ public class BoardActivity extends Activity {
         createLayouts();
         setContentView(rootLayout);
         createBoardButtons();
+        SharedPreferences prefs = getSharedPreferences("preferences",0);
+        String newBpm = prefs.getString("bpm", "120");
+        Log.e("TEST", "new bpm is " + Integer.parseInt(newBpm));
+        sequencer.setBpm(Integer.parseInt(newBpm));
+        Bundle extras = getIntent().getExtras();
+        int kC = ((Integer)extras.getInt("kickCounter"));
+        Log.e("Testing the kickCounter:",((Integer)kC).toString());
     }
 
     private void createLayouts() {

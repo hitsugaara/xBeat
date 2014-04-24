@@ -68,7 +68,7 @@
         android:layout_gravity="top|center"
         android:text="Tap" />
 
-    <EditText
+    <RadioButton
         android:id="@+id/rec_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
