@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.PublicKey;
+import java.util.Arrays;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,12 +17,14 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Display;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 //import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.ToggleButton;
 import android.media.AudioManager;
@@ -51,12 +55,15 @@ public class RecordActivity extends Activity {
 	private int count;
 	private static int count2;
 	private int beats = 8;
+	private int samples = 4;
 	private int bpm;
 	private long millis;
 	private long msecsfirst;
 	private long msecsprevious;
 	private long bpmavg;
 	private int bpmwhole;
+	private int beatCount;
+	ToggleButton Record;
 	EditText tempotext;
 	RadioButton indicator;
 	Button Kick;
@@ -72,7 +79,10 @@ public class RecordActivity extends Activity {
 	private long recordStamp;
 	private long[] beatStamp;
 	private int beatCounter;
-	//BufferedWriter br;
+	private ProgressBar progbar;
+	private OnBPMListener mOnBPMListener;
+
+	// BufferedWriter br;
 
 	public interface OnBPMListener {
 		/**
@@ -88,34 +98,27 @@ public class RecordActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		try {
-			new File(mData).createNewFile();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		/*try {
-			br = new BufferedWriter(new FileWriter(mData));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}*/
+
 		// Use the whole device screen.
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
 		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		setContentView(R.layout.recordlayout);
+
 		Kick = (Button) findViewById(R.id.Kick);
 		Kick.setEnabled(false);
 		Hat = (Button) findViewById(R.id.Hat);
 		Hat.setEnabled(false);
 		Snare = (Button) findViewById(R.id.Snare);
 		Snare.setEnabled(false);
-		ToggleButton Record = (ToggleButton) findViewById(R.id.Record);
+		Record = (ToggleButton) findViewById(R.id.Record);
 		ToggleButton Beatbox = (ToggleButton) findViewById(R.id.Beatbox);
 		Button Tapper = (Button) findViewById(R.id.Tapper);
 		tempotext = (EditText) findViewById(R.id.Tempotext);
 		indicator = (RadioButton) findViewById(R.id.rec_indicator);
+		progbar = (ProgressBar) findViewById(R.id.progressBar);
 		sound = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 		sound.load(getBaseContext(), R.raw.hhc, 1);
 		mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -128,36 +131,36 @@ public class RecordActivity extends Activity {
 		hatLong = new long[30];
 		snareLong = new long[30];
 		beatStamp = new long[30];
-		
+
 		Kick.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				long temp = System.currentTimeMillis();
 				Log.e(TAG, ((Long) System.currentTimeMillis()).toString());
-				kickLong[kickCounter++] = temp-recordStamp;
+				kickLong[kickCounter++] = temp - recordStamp;
 			}
 
 		});
-		
+
 		Hat.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				long temp = System.currentTimeMillis();
 				Log.e(TAG, ((Long) System.currentTimeMillis()).toString());
-				hatLong[hatCounter++] = temp-recordStamp;
+				hatLong[hatCounter++] = temp - recordStamp;
 			}
 
 		});
-		
+
 		Snare.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				long temp = System.currentTimeMillis();
 				Log.e(TAG, ((Long) System.currentTimeMillis()).toString());
-				snareLong[snareCounter++] = temp-recordStamp;
+				snareLong[snareCounter++] = temp - recordStamp;
 			}
 
 		});
@@ -191,6 +194,7 @@ public class RecordActivity extends Activity {
 					Kick.setEnabled(false);
 					Hat.setEnabled(false);
 					Snare.setEnabled(false);
+					progbar.setProgress(0);
 				}
 			}
 		});
@@ -203,6 +207,20 @@ public class RecordActivity extends Activity {
 				sound.play(1, 100, 100, 1, 0, 1);
 			}
 		});
+
+	}
+
+	public void onResume(Bundle savedInstanceState) {
+		
+		
+
+	}
+
+	public void setOnBPMListener(OnBPMListener l) {
+		this.mOnBPMListener = l;
+	}
+
+	public void onDestroy(Bundle savedInstanceState) {
 
 	}
 
@@ -222,7 +240,10 @@ public class RecordActivity extends Activity {
 		}
 
 		mRecorder.start();
-		recordStamp=System.currentTimeMillis();
+		recordStamp = System.currentTimeMillis();
+		// setOnBPMListener(progressBarView);
+		// this.addView(progressBarView);
+
 	}
 
 	private void stopRecording() throws IOException {
@@ -232,8 +253,8 @@ public class RecordActivity extends Activity {
 			mRecorder.release();
 			mRecorder = null;
 		}
-		//write();
-		
+		// write();
+
 		Intent i = new Intent(RecordActivity.this, BoardActivity.class);
 		i.putExtra(kickdata, kickLong);
 		i.putExtra(hatdata, hatLong);
@@ -247,6 +268,10 @@ public class RecordActivity extends Activity {
 		kickCounter = 0;
 		hatCounter = 0;
 		snareCounter = 0;
+		beatCounter = 0;
+		Arrays.fill(kickLong, 0);
+		Arrays.fill(snareLong, 0);
+		Arrays.fill(hatLong, 0);
 	}
 
 	private void Tap() {
@@ -283,6 +308,7 @@ public class RecordActivity extends Activity {
 		refresh.post(new Runnable() {
 			public void run() {
 				// indicator.setText(((Integer) (count2+1)).toString());
+
 				if (indicator.isChecked()) {
 					indicator.setChecked(false);
 				} else
@@ -295,15 +321,28 @@ public class RecordActivity extends Activity {
 		return;
 	}
 
-	/*private void write() throws IOException {
+	public void progressUpdate() {
+		Handler refresh = new Handler(Looper.getMainLooper());
+		refresh.post(new Runnable() {
+			public void run() {
+				// indicator.setText(((Integer) (count2+1)).toString());
+				Integer t = (beatCount * 100 / beats);
+				Log.e(TAG, (t.toString()));
+				progbar.setProgress(t);
+			}
+		});
+		return;
+	}
 
-		for (int l=0;l<kickCounter;l++) {
-			br.write(((Long) kickLong[l]).toString());
-			Log.e(TAG,"Write!"+ ((Long) kickLong[l]).toString());
+	private void uncheck() {
+		Handler refresh = new Handler(Looper.getMainLooper());
+		refresh.post(new Runnable() {
+			public void run() {
+				Record.setChecked(false);
 
-		}
-		kickCounter = 0;
-	}*/
+			}
+		});
+	}
 
 	class NewThread implements Runnable {
 
@@ -334,19 +373,22 @@ public class RecordActivity extends Activity {
 			else {
 				// count2 = 0;
 				Log.e(TAG, "flash");
+				beatCount = 0;
 
 				recording = true;
-				while (recording) {
+				while (recording && (beatCount < beats)) {
+
 					Log.e(TAG, "Boo");
-				    millis = System.currentTimeMillis();
+					millis = System.currentTimeMillis();
 					Log.e(TAG, ((Long) System.currentTimeMillis()).toString());
-					beatStamp[beatCounter++] = millis-recordStamp;
-					flash(); // indicator.setText(((Integer)
-								// count2).toString());
-					// count2 = (count2 + 1) ;
+					beatStamp[beatCounter++] = millis - recordStamp;
+					flash();
 					long next = (60 * 1000) / bpm;
+					progressUpdate();
+
 					// count2 = count2 % 4;
 
+					beatCount++;
 					try {
 						Thread.sleep(next
 								- (System.currentTimeMillis() - millis));
@@ -355,6 +397,8 @@ public class RecordActivity extends Activity {
 						e.printStackTrace();
 					}
 				}
+
+				uncheck();
 
 			}
 		}
@@ -372,7 +416,7 @@ public class RecordActivity extends Activity {
 		@Override
 		public void run() {
 
-			// precount();
+			// Pre-count
 			for (int i = 0; i < 4; i++) {
 
 				millis = System.currentTimeMillis();
