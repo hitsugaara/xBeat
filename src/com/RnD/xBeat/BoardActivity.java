@@ -49,6 +49,7 @@ public class BoardActivity extends Activity {
 	private long[] kArray;
 	private long[] hArray;
 	private long[] sArray;
+	private long[] bbArray;
 	public static final int TOTAL_BEATS = 8;
 	public static final int TOTAL_SAMPLES = 4;
 	private int BPM;
@@ -184,10 +185,12 @@ public class BoardActivity extends Activity {
 		kArray = (extras.getLongArray("kick"));
 		hArray = (extras.getLongArray("hat"));
 		sArray = (extras.getLongArray("snare"));
+		bbArray = (extras.getLongArray("bbrecdata"));
 		quantize(kArray,0);
+		quantize(bbArray,1);
 		quantize(hArray,2);
 		quantize(sArray,3);
-		// Log.e("Testing the kickCounter:",((Long)kC[0]).toString());
+		 Log.e("Testing the bbrec array:",((Long)bbArray[1]).toString());
 	}
 
 	private void createLayouts() {

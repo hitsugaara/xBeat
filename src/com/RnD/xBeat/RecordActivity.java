@@ -42,8 +42,7 @@ public class RecordActivity extends Activity {
 	private static final String mFileName = Environment
 			.getExternalStorageDirectory().getAbsolutePath()
 			+ "/audiorecordtest.3gp";
-	private static final String mData = Environment
-			.getExternalStorageDirectory().getAbsolutePath() + "/timestamp.txt";
+
 	private MediaRecorder mRecorder;
 	private static final String kickdata = "kick";
 	private static final String hatdata = "hat";
@@ -53,7 +52,6 @@ public class RecordActivity extends Activity {
 	private SoundPool sound;
 	private AudioManager mAudioManager;
 	private int count;
-	private static int count2;
 	private int beats = 8;
 	private int samples = 4;
 	private int bpm;
@@ -80,7 +78,8 @@ public class RecordActivity extends Activity {
 	private long[] beatStamp;
 	private int beatCounter;
 	private ProgressBar progbar;
-	private OnBPMListener mOnBPMListener;
+    private long[] BBRECLong;
+    private int BBRECCounter;
 
 	// BufferedWriter br;
 
@@ -127,17 +126,18 @@ public class RecordActivity extends Activity {
 		hatCounter = 0;
 		snareCounter = 0;
 		beatCounter = 0;
-		kickLong = new long[30];
-		hatLong = new long[30];
-		snareLong = new long[30];
-		beatStamp = new long[30];
-
+		BBRECCounter = 0;
+		kickLong = new long[20];
+		hatLong = new long[20];
+		snareLong = new long[20];
+		beatStamp = new long[20];
+        BBRECLong = new long[20];
 		Kick.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				long temp = System.currentTimeMillis();
-				Log.e(TAG, ((Long) System.currentTimeMillis()).toString());
+				Log.e(TAG+"Kickstamp", ((Long) (System.currentTimeMillis() - recordStamp)).toString());
 				kickLong[kickCounter++] = temp - recordStamp;
 			}
 
@@ -148,7 +148,7 @@ public class RecordActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				long temp = System.currentTimeMillis();
-				Log.e(TAG, ((Long) System.currentTimeMillis()).toString());
+				Log.e(TAG+"HatStamp", ((Long) System.currentTimeMillis()).toString());
 				hatLong[hatCounter++] = temp - recordStamp;
 			}
 
@@ -159,7 +159,7 @@ public class RecordActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				long temp = System.currentTimeMillis();
-				Log.e(TAG, ((Long) System.currentTimeMillis()).toString());
+				Log.e(TAG+"SnareStamp", ((Long) System.currentTimeMillis()).toString());
 				snareLong[snareCounter++] = temp - recordStamp;
 			}
 
@@ -211,13 +211,7 @@ public class RecordActivity extends Activity {
 	}
 
 	public void onResume(Bundle savedInstanceState) {
-		
-		
 
-	}
-
-	public void setOnBPMListener(OnBPMListener l) {
-		this.mOnBPMListener = l;
 	}
 
 	public void onDestroy(Bundle savedInstanceState) {
@@ -241,9 +235,6 @@ public class RecordActivity extends Activity {
 
 		mRecorder.start();
 		recordStamp = System.currentTimeMillis();
-		// setOnBPMListener(progressBarView);
-		// this.addView(progressBarView);
-
 	}
 
 	private void stopRecording() throws IOException {
@@ -264,14 +255,18 @@ public class RecordActivity extends Activity {
 		i.putExtra("snareCounter", snareCounter);
 		i.putExtra(beatdata, beatStamp);
 		i.putExtra("beatCounter", beatCounter);
+		i.putExtra("bbrecdata", BBRECLong);
+		i.putExtra("bbrecCounter", BBRECCounter);
 		startActivity(i);
 		kickCounter = 0;
 		hatCounter = 0;
 		snareCounter = 0;
 		beatCounter = 0;
+		BBRECCounter = 0;
 		Arrays.fill(kickLong, 0);
 		Arrays.fill(snareLong, 0);
 		Arrays.fill(hatLong, 0);
+		Arrays.fill(BBRECLong,0);
 	}
 
 	private void Tap() {
@@ -304,6 +299,7 @@ public class RecordActivity extends Activity {
 	}
 
 	public void flash() {
+		Log.e(TAG, "flash");
 		Handler refresh = new Handler(Looper.getMainLooper());
 		refresh.post(new Runnable() {
 			public void run() {
@@ -314,7 +310,7 @@ public class RecordActivity extends Activity {
 				} else
 					indicator.setChecked(true);
 
-				Log.i(TAG, "Print");
+				
 
 			}
 		});
@@ -327,7 +323,7 @@ public class RecordActivity extends Activity {
 			public void run() {
 				// indicator.setText(((Integer) (count2+1)).toString());
 				Integer t = (beatCount * 100 / beats);
-				Log.e(TAG, (t.toString()));
+				Log.e(TAG+"Progbar", (t.toString()));
 				progbar.setProgress(t);
 			}
 		});
@@ -371,24 +367,33 @@ public class RecordActivity extends Activity {
 			}
 
 			else {
-				// count2 = 0;
-				Log.e(TAG, "flash");
 				beatCount = 0;
 
 				recording = true;
 				while (recording && (beatCount < beats)) {
 
-					Log.e(TAG, "Boo");
 					millis = System.currentTimeMillis();
 					Log.e(TAG, ((Long) System.currentTimeMillis()).toString());
-					beatStamp[beatCounter++] = millis - recordStamp;
+
+					// beatStamp[beatCounter++] = millis - recordStamp;
+
 					flash();
-					long next = (60 * 1000) / bpm;
+
+					long next = (60000) / bpm;
+					if (beatCount >= 1) {
+						
+						//Log.i(TAG, ((Integer) mRecorder.getMaxAmplitude())
+								//.toString());
+						if(mRecorder.getMaxAmplitude() >= 25000)
+						{   
+							
+							BBRECLong[BBRECCounter++]=millis - recordStamp;
+							Log.i(TAG+"RecStamp",((Long)BBRECLong[BBRECCounter-1]).toString());
+						}
+					}
 					progressUpdate();
-
-					// count2 = count2 % 4;
-
 					beatCount++;
+
 					try {
 						Thread.sleep(next
 								- (System.currentTimeMillis() - millis));
@@ -397,9 +402,13 @@ public class RecordActivity extends Activity {
 						e.printStackTrace();
 					}
 				}
-
+				
+				if(mRecorder.getMaxAmplitude() >= 25000)
+				{
+					millis = System.currentTimeMillis();
+					BBRECLong[BBRECCounter++]=millis - recordStamp;
+				}
 				uncheck();
-
 			}
 		}
 	}
