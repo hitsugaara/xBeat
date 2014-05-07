@@ -186,11 +186,11 @@ public class BoardActivity extends Activity {
 		hArray = (extras.getLongArray("hat"));
 		sArray = (extras.getLongArray("snare"));
 		bbArray = (extras.getLongArray("bbrecdata"));
-		quantize(kArray,0);
-		quantize(bbArray,1);
-		quantize(hArray,2);
-		quantize(sArray,3);
-		 Log.e("Testing the bbrec array:",((Long)bbArray[1]).toString());
+		quantize(kArray, 0);
+		quantize(bbArray, 1);
+		quantize(hArray, 2);
+		quantize(sArray, 3);
+		Log.e("Testing the bbrec array:", ((Long) bbArray[1]).toString());
 	}
 
 	private void createLayouts() {
@@ -229,6 +229,23 @@ public class BoardActivity extends Activity {
 			Log.d("Board", "Button width: " + buttonWidth);
 			for (int beatPos = 0; beatPos < TOTAL_BEATS; beatPos++) {
 				samplersButtons[samplePos][beatPos] = new ToggleButton(this);
+
+				if (samplePos == 0) {
+					samplersButtons[samplePos][beatPos]
+							.setBackgroundResource(R.drawable.toggle_layer);
+				}
+				else if (samplePos == 1) {
+					samplersButtons[samplePos][beatPos]
+							.setBackgroundResource(R.drawable.toggle_hato_layer);
+				}
+				else if (samplePos == 2) {
+					samplersButtons[samplePos][beatPos]
+							.setBackgroundResource(R.drawable.toggle_hatc_sel);
+				}
+				else if (samplePos == 3) {
+					samplersButtons[samplePos][beatPos]
+							.setBackgroundResource(R.drawable.toggle_snare_layer);
+				}
 				samplersButtons[samplePos][beatPos].setTextOff("");
 				samplersButtons[samplePos][beatPos].setTextOn("");
 				samplersButtons[samplePos][beatPos].setText("");
@@ -238,6 +255,7 @@ public class BoardActivity extends Activity {
 						* samplePos + beatPos);
 				samplersButtons[samplePos][beatPos]
 						.setOnClickListener(samplerListener);
+
 				boardLayouts[samplePos]
 						.addView(samplersButtons[samplePos][beatPos]);
 			}
@@ -254,7 +272,7 @@ public class BoardActivity extends Activity {
 				samplersButtons[sample][Counter].setChecked(true);
 				kCounter++;
 			}
-			referenceTime1+=((60 * 1000) / BPM);
+			referenceTime1 += ((60 * 1000) / BPM);
 			Counter++;
 		}
 	}

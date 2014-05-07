@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 //import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.ToggleButton;
@@ -64,9 +65,10 @@ public class RecordActivity extends Activity {
 	ToggleButton Record;
 	EditText tempotext;
 	RadioButton indicator;
-	Button Kick;
-	Button Snare;
-	Button Hat;
+	ImageButton Kick;
+	ImageButton Snare;
+	ImageButton Hat;
+	ImageButton Tapper;
 	private static boolean recording;
 	private long[] kickLong;
 	private int kickCounter;
@@ -78,9 +80,9 @@ public class RecordActivity extends Activity {
 	private long[] beatStamp;
 	private int beatCounter;
 	private ProgressBar progbar;
-    private long[] BBRECLong;
-    private int BBRECCounter;
-
+	private long[] BBRECLong;
+	private int BBRECCounter;
+private static boolean precount_indi=false;
 	// BufferedWriter br;
 
 	public interface OnBPMListener {
@@ -106,18 +108,20 @@ public class RecordActivity extends Activity {
 
 		setContentView(R.layout.recordlayout);
 
-		Kick = (Button) findViewById(R.id.Kick);
-		Kick.setEnabled(false);
-		Hat = (Button) findViewById(R.id.Hat);
-		Hat.setEnabled(false);
-		Snare = (Button) findViewById(R.id.Snare);
-		Snare.setEnabled(false);
+		Kick = (ImageButton) findViewById(R.id.kick);
+		Kick.setVisibility(View.INVISIBLE);
+		Hat = (ImageButton) findViewById(R.id.Hat);
+		Hat.setVisibility(View.INVISIBLE);
+		Snare = (ImageButton) findViewById(R.id.Snare);
+		Snare.setVisibility(View.INVISIBLE);
 		Record = (ToggleButton) findViewById(R.id.Record);
 		ToggleButton Beatbox = (ToggleButton) findViewById(R.id.Beatbox);
-		Button Tapper = (Button) findViewById(R.id.Tapper);
+		Tapper = (ImageButton) findViewById(R.id.Tapper);
 		tempotext = (EditText) findViewById(R.id.Tempotext);
 		indicator = (RadioButton) findViewById(R.id.rec_indicator);
+		indicator.setVisibility(View.INVISIBLE);
 		progbar = (ProgressBar) findViewById(R.id.progressBar);
+		progbar.setVisibility(View.INVISIBLE);
 		sound = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 		sound.load(getBaseContext(), R.raw.hhc, 1);
 		mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -131,13 +135,15 @@ public class RecordActivity extends Activity {
 		hatLong = new long[20];
 		snareLong = new long[20];
 		beatStamp = new long[20];
-        BBRECLong = new long[20];
+		BBRECLong = new long[20];
 		Kick.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				long temp = System.currentTimeMillis();
-				Log.e(TAG+"Kickstamp", ((Long) (System.currentTimeMillis() - recordStamp)).toString());
+				Log.e(TAG + "Kickstamp",
+						((Long) (System.currentTimeMillis() - recordStamp))
+								.toString());
 				kickLong[kickCounter++] = temp - recordStamp;
 			}
 
@@ -148,7 +154,8 @@ public class RecordActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				long temp = System.currentTimeMillis();
-				Log.e(TAG+"HatStamp", ((Long) System.currentTimeMillis()).toString());
+				Log.e(TAG + "HatStamp",
+						((Long) System.currentTimeMillis()).toString());
 				hatLong[hatCounter++] = temp - recordStamp;
 			}
 
@@ -159,7 +166,8 @@ public class RecordActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				long temp = System.currentTimeMillis();
-				Log.e(TAG+"SnareStamp", ((Long) System.currentTimeMillis()).toString());
+				Log.e(TAG + "SnareStamp",
+						((Long) System.currentTimeMillis()).toString());
 				snareLong[snareCounter++] = temp - recordStamp;
 			}
 
@@ -169,20 +177,32 @@ public class RecordActivity extends Activity {
 			public void onCheckedChanged(CompoundButton buttonView,
 					boolean isChecked) {
 				if (isChecked) {
-					Kick.setEnabled(true);
-					Hat.setEnabled(true);
-					Snare.setEnabled(true);
+					Tapper.setVisibility(View.INVISIBLE);
+					Kick.setVisibility(View.VISIBLE);
+					Hat.setVisibility(View.VISIBLE);
+					Snare.setVisibility(View.VISIBLE);
+					progbar.setVisibility(View.VISIBLE);
+					indicator.setVisibility(View.VISIBLE);
 					settempo(Integer.parseInt(tempotext.getText().toString()));
-					NewThread2 nn1 = new NewThread2();
-					try {
+					//NewThread2 nn1 = new NewThread2();
+					
+					/*try {
 						nn1.t1.join();
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-					}
-					NewThread n1 = new NewThread("Record");
-					Log.e(TAG, "Post-Rercod");
-					NewThread n2 = new NewThread("Flash");
+					}*/
+					//precount_animate0();
+					precount();
+					
+				
+					
+					//if(!(nn1.t1.isAlive())){
+						NewThread n1 = new NewThread("Record");
+						Log.e(TAG, "Post-Rercod");
+						NewThread n2 = new NewThread("Flash");
+					//}
+					
 
 				} else {
 					try {
@@ -191,9 +211,9 @@ public class RecordActivity extends Activity {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					Kick.setEnabled(false);
-					Hat.setEnabled(false);
-					Snare.setEnabled(false);
+					Kick.setVisibility(View.INVISIBLE);
+					Hat.setVisibility(View.INVISIBLE);
+					Snare.setVisibility(View.INVISIBLE);
 					progbar.setProgress(0);
 				}
 			}
@@ -266,7 +286,7 @@ public class RecordActivity extends Activity {
 		Arrays.fill(kickLong, 0);
 		Arrays.fill(snareLong, 0);
 		Arrays.fill(hatLong, 0);
-		Arrays.fill(BBRECLong,0);
+		Arrays.fill(BBRECLong, 0);
 	}
 
 	private void Tap() {
@@ -298,6 +318,62 @@ public class RecordActivity extends Activity {
 		Log.e(tempotest, prefs.getString("bpm", "120"));
 	}
 
+	public void precount_animate(final int i)
+	{
+		
+		Handler refresh = new Handler(Looper.getMainLooper());
+		refresh.post(new Runnable() {
+			public void run() {
+		switch (i) {
+		case 0:
+			Kick.setVisibility(View.VISIBLE);
+		    
+			Tapper.setVisibility(View.INVISIBLE);
+			break;
+		case 1:
+			Hat.setVisibility(View.VISIBLE);
+			break;
+		case 2:
+			Snare.setVisibility(View.VISIBLE);
+			break;
+		case 3:
+			progbar.setVisibility(View.VISIBLE);
+			indicator.setVisibility(View.VISIBLE);
+			break;
+		}
+	}
+		});
+		return;
+	}
+	
+	public void precount_animate0()
+	{
+		for(int i=0;i<4;i++){
+			
+		switch (i) {
+		case 0:
+			Kick.setVisibility(View.VISIBLE);
+			Tapper.setVisibility(View.INVISIBLE);
+			
+			break;
+		case 1:
+			Hat.setVisibility(View.VISIBLE);
+			break;
+		case 2:
+			Snare.setVisibility(View.VISIBLE);
+			break;
+		case 3:
+			progbar.setVisibility(View.VISIBLE);
+			indicator.setVisibility(View.VISIBLE);
+			break;
+		}
+				
+				
+			}
+		}
+		
+		
+	
 	public void flash() {
 		Log.e(TAG, "flash");
 		Handler refresh = new Handler(Looper.getMainLooper());
@@ -310,8 +386,6 @@ public class RecordActivity extends Activity {
 				} else
 					indicator.setChecked(true);
 
-				
-
 			}
 		});
 		return;
@@ -323,7 +397,7 @@ public class RecordActivity extends Activity {
 			public void run() {
 				// indicator.setText(((Integer) (count2+1)).toString());
 				Integer t = (beatCount * 100 / beats);
-				Log.e(TAG+"Progbar", (t.toString()));
+				Log.e(TAG + "Progbar", (t.toString()));
 				progbar.setProgress(t);
 			}
 		});
@@ -338,6 +412,43 @@ public class RecordActivity extends Activity {
 
 			}
 		});
+	}
+	
+	private void precount(){
+		for (int i = 0; i < 4; i++) {
+            
+			//precount_animate(i);
+			/*switch (i) {
+			case 0:
+				Kick.setVisibility(View.VISIBLE);
+				Tapper.setVisibility(View.INVISIBLE);
+				
+				break;
+			case 1:
+				Hat.setVisibility(View.VISIBLE);
+				break;
+			case 2:
+				Snare.setVisibility(View.VISIBLE);
+				break;
+			case 3:
+				progbar.setVisibility(View.VISIBLE);
+				indicator.setVisibility(View.VISIBLE);
+				break;
+			}*/
+			
+			millis = System.currentTimeMillis();
+
+			long next = (60 * 1000) / bpm;
+			
+			sound.play(1, 100, 100, 1, 0, 1);
+			try {
+				Thread.sleep(next - (System.currentTimeMillis() - millis));
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				Log.e(TAG,"Interrupted");
+				e.printStackTrace();
+			}
+	}
 	}
 
 	class NewThread implements Runnable {
@@ -381,14 +492,15 @@ public class RecordActivity extends Activity {
 
 					long next = (60000) / bpm;
 					if (beatCount >= 1) {
-						
-						//Log.i(TAG, ((Integer) mRecorder.getMaxAmplitude())
-								//.toString());
-						if(mRecorder.getMaxAmplitude() >= 25000)
-						{   
-							
-							BBRECLong[BBRECCounter++]=millis - recordStamp;
-							Log.i(TAG+"RecStamp",((Long)BBRECLong[BBRECCounter-1]).toString());
+
+						// Log.i(TAG, ((Integer) mRecorder.getMaxAmplitude())
+						// .toString());
+						if (mRecorder.getMaxAmplitude() >= 25000) {
+
+							BBRECLong[BBRECCounter++] = millis - recordStamp;
+							Log.i(TAG + "RecStamp",
+									((Long) BBRECLong[BBRECCounter - 1])
+											.toString());
 						}
 					}
 					progressUpdate();
@@ -402,18 +514,17 @@ public class RecordActivity extends Activity {
 						e.printStackTrace();
 					}
 				}
-				
-				if(mRecorder.getMaxAmplitude() >= 25000)
-				{
+
+				if (mRecorder.getMaxAmplitude() >= 25000) {
 					millis = System.currentTimeMillis();
-					BBRECLong[BBRECCounter++]=millis - recordStamp;
+					BBRECLong[BBRECCounter++] = millis - recordStamp;
 				}
 				uncheck();
 			}
 		}
 	}
 
-	class NewThread2 implements Runnable {
+	/*class NewThread2 implements Runnable {
 		Thread t1;
 
 		NewThread2() {
@@ -427,21 +538,26 @@ public class RecordActivity extends Activity {
 
 			// Pre-count
 			for (int i = 0; i < 4; i++) {
-
+                
+				precount_animate(i);
 				millis = System.currentTimeMillis();
 
 				long next = (60 * 1000) / bpm;
+				
+
+				
 				sound.play(1, 100, 100, 1, 0, 1);
 
 				try {
 					Thread.sleep(next - (System.currentTimeMillis() - millis));
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
+					Log.e(TAG,"Interrupted");
 					e.printStackTrace();
 				}
 			}
 		}
 
-	}
+	}*/
 
 }
