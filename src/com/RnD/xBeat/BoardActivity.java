@@ -22,12 +22,17 @@
 
 package com.RnD.xBeat;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Display;
@@ -39,18 +44,22 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.RnD.xBeat.R;
 import com.RnD.xBeat.sequencer.Sequencer;
 
 public class BoardActivity extends Activity {
-
+	private static final String TAG = "BoardActivity";
+	private static final String expFileDir = android.os.Environment.getExternalStorageDirectory()+"/xBeat";
+	
+	
 	private long[] kArray;
 	private long[] hArray;
 	private long[] sArray;
 	private long[] bbArray;
-	public static final int TOTAL_BEATS = 8;
+	public static final int TOTAL_BEATS = 32;
 	public static final int TOTAL_SAMPLES = 4;
 	private int BPM;
 
@@ -121,6 +130,11 @@ public class BoardActivity extends Activity {
 			Intent preferencesActivity = new Intent(getBaseContext(),
 					Preferences.class);
 			startActivityForResult(preferencesActivity, 1);
+			SharedPreferences prefs = getSharedPreferences("preferences", 0);
+			String newBpm = prefs.getString("bpm", "120");
+			Log.e("TEST", "new bpm is " + Integer.parseInt(newBpm));
+			sequencer.setBpm(Integer.parseInt(newBpm));
+			
 			break;
 		case R.id.add_column:
 			Log.e("TEST", "Adding columns");
@@ -129,6 +143,10 @@ public class BoardActivity extends Activity {
 			startActivityForResult(addColumnActivity, 2);
 			// sequencer.addColumns(amount);
 			break;
+			
+		case R.id.export:
+			Log.e("TEST","Exporting");
+			export();
 		}
 		return false;
 	}
@@ -186,11 +204,11 @@ public class BoardActivity extends Activity {
 		hArray = (extras.getLongArray("hat"));
 		sArray = (extras.getLongArray("snare"));
 		bbArray = (extras.getLongArray("bbrecdata"));
-		quantize(kArray,0);
+		quantize(kArray, 0);
 		quantize(bbArray,1);
-		quantize(hArray,2);
-		quantize(sArray,3);
-		 Log.e("Testing the bbrec array:",((Long)bbArray[1]).toString());
+		quantize(hArray, 2);
+		quantize(sArray, 3);
+		Log.e("Testing the bbrec array:", ((Long) bbArray[1]).toString());
 	}
 
 	private void createLayouts() {
@@ -229,6 +247,23 @@ public class BoardActivity extends Activity {
 			Log.d("Board", "Button width: " + buttonWidth);
 			for (int beatPos = 0; beatPos < TOTAL_BEATS; beatPos++) {
 				samplersButtons[samplePos][beatPos] = new ToggleButton(this);
+
+				if (samplePos == 0) {
+					samplersButtons[samplePos][beatPos]
+							.setBackgroundResource(R.drawable.toggle_layer);
+				}
+				else if (samplePos == 1) {
+					samplersButtons[samplePos][beatPos]
+							.setBackgroundResource(R.drawable.toggle_hato_layer);
+				}
+				else if (samplePos == 2) {
+					samplersButtons[samplePos][beatPos]
+							.setBackgroundResource(R.drawable.toggle_hatc_sel);
+				}
+				else if (samplePos == 3) {
+					samplersButtons[samplePos][beatPos]
+							.setBackgroundResource(R.drawable.toggle_snare_layer);
+				}
 				samplersButtons[samplePos][beatPos].setTextOff("");
 				samplersButtons[samplePos][beatPos].setTextOn("");
 				samplersButtons[samplePos][beatPos].setText("");
@@ -238,6 +273,7 @@ public class BoardActivity extends Activity {
 						* samplePos + beatPos);
 				samplersButtons[samplePos][beatPos]
 						.setOnClickListener(samplerListener);
+
 				boardLayouts[samplePos]
 						.addView(samplersButtons[samplePos][beatPos]);
 			}
@@ -246,16 +282,61 @@ public class BoardActivity extends Activity {
 
 	private void quantize(long[] array, int sample) {
 		long referenceTime1 = 0;
-		int Counter = 0, kCounter = 0;
+		int Counter = 0, kCounter = 0,bpm2 = BPM*4;
+		float perc=(float) (((1/10)*bpm2));
 		while (Counter < TOTAL_BEATS) {
 			if ((array[kCounter] > referenceTime1)
-					&& (array[kCounter] <= (referenceTime1 + ((60 * 1000) / BPM)))) {
+					&& (array[kCounter] <= (referenceTime1 + ((60000) / bpm2))-perc)) {
 				sequencer.enableCell(sample, Counter);
 				samplersButtons[sample][Counter].setChecked(true);
 				kCounter++;
 			}
-			referenceTime1+=((60 * 1000) / BPM);
+			referenceTime1 += ((60000) / bpm2);
 			Counter++;
 		}
+	}
+	private void export(){
+		try {
+			int i=0,j=0;
+            File myFile = new File(expFileDir,"ExportText.txt");
+            if (!myFile.exists()) {
+                myFile.getParentFile().mkdirs();
+                myFile.createNewFile();
+           }
+            FileOutputStream fOut = new FileOutputStream(myFile);
+            OutputStreamWriter myOutWriter = 
+                                    new OutputStreamWriter(fOut);
+            while(i<TOTAL_SAMPLES)
+            {
+            	j=0;
+            	while(j<TOTAL_BEATS)
+            	{
+            		if(samplersButtons[i][j].isChecked())
+            		{
+            			myOutWriter.append("1");
+            			Log.i(TAG,"Wrtten 1 at "+i+" "+j );
+            		}
+            		else
+            		{
+            			myOutWriter.append("0");
+            			Log.i(TAG,"Wrtten 0 at "+i+" "+j );
+            		}
+            		j++;
+            	}
+            	i++;
+            	myOutWriter.append("\n");
+            	Log.i(TAG,"new line after "+i+" "+j );
+            }
+            myOutWriter.append("\n"+((Integer)sequencer.getBpm()).toString());
+            myOutWriter.close();
+            fOut.close();
+            Toast.makeText(getBaseContext(),
+                    "Done writing SD 'exportTest.xb'",
+                    Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(getBaseContext(), e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
+        }
+		
 	}
 }

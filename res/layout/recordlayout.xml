@@ -1,85 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/Dark_Grey"
-    android:columnCount="5"
-    android:orientation="horizontal" >
+    android:background="@color/White" >
+
+    <Space
+        android:id="@+id/Space1"
+        android:layout_width="1dp"
+        android:layout_height="15dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true" />
+
+    <Space
+        android:id="@+id/Space1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ImageButton
+        android:id="@+id/Tapper"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/tapper" />
 
     <ToggleButton
         android:id="@+id/Record"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Record"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/record"
         android:textOff="Record"
         android:textOn="Recording" />
 
-    <EditText
-        android:id="@+id/Tempotext"
-        android:layout_width="62dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/Beatbox"
-        android:layout_gravity="center|bottom"
-        android:layout_toLeftOf="@+id/Record"
-        android:ems="10"
-        android:inputType="number" />
-
-    <Button
-        android:id="@+id/Snare"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        
-        android:layout_gravity="right|bottom"
-        
-        
-        android:text="Snare" />
-
-    <Button
+    <ImageButton
         android:id="@+id/Hat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_gravity="right"
-        android:layout_toRightOf="@+id/Record"
-        android:text="Hat" />
+        android:layout_below="@+id/Tapper"
+        android:layout_toLeftOf="@+id/progressBar"
+        android:background="@drawable/hat" />
 
-    <ToggleButton
-        android:id="@+id/Beatbox"
-        android:layout_width="83dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:text="Beatbox"
-        android:textOff="Beatbox Off"
-        android:textOn="Beatbox On" />
-
-    <Button
-        android:id="@+id/Kick"
+    <ImageButton
+        android:id="@+id/Snare"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Kick" />
-
-    <Button
-        android:id="@+id/Tapper"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|center"
-        android:text="Tap" />
+        android:layout_alignLeft="@+id/Hat"
+        android:layout_alignTop="@+id/Tempotext"
+        android:background="@drawable/snare" />
 
     <RadioButton
         android:id="@+id/rec_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
+        android:layout_alignBaseline="@+id/Record"
+        android:layout_alignBottom="@+id/Record"
+        android:layout_toRightOf="@+id/Space1"
         android:text=" " />
+
+    <EditText
+        android:id="@+id/Tempotext"
+        android:layout_width="62dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:ems="10"
+        android:inputType="number" >
+
+        <requestFocus />
+    </EditText>
 
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right|center" />
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/rec_indicator" />
 
-</FrameLayout>
+    <ToggleButton
+        android:id="@+id/Beatbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/Tempotext"
+        android:layout_toRightOf="@+id/rec_indicator"
+        android:background="@drawable/beatbox"
+        android:text=" "
+        android:textOff="Beatbox off"
+        android:textOn="Beatbox on" />
+
+    <ImageButton
+        android:id="@+id/kick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/Beatbox"
+        android:layout_alignTop="@+id/Hat"
+        android:background="@drawable/kick" />
+
+</RelativeLayout>
