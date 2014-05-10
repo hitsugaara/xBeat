@@ -438,7 +438,7 @@ private static boolean precount_indi=false;
 			
 			millis = System.currentTimeMillis();
 
-			long next = (60 * 1000) / bpm;
+			long next = (60000) / (bpm);
 			
 			sound.play(1, 100, 100, 1, 0, 1);
 			try {
@@ -490,7 +490,7 @@ private static boolean precount_indi=false;
 
 					flash();
 
-					long next = (60000) / bpm;
+					long next = (60000) / (bpm);
 					if (beatCount >= 1) {
 
 						// Log.i(TAG, ((Integer) mRecorder.getMaxAmplitude())

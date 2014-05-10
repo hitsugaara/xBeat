@@ -40,4 +40,8 @@
         android:id="@+id/add_column"
         android:title="Add column"
         android:icon="@android:drawable/ic_menu_add" />
+    <item
+        android:id="@+id/export"
+        android:title="Export Track"
+        android:icon="@android:drawable/ic_menu_send" />
 </menu>
