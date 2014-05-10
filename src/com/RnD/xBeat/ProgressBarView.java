@@ -36,7 +36,7 @@ public class ProgressBarView extends View implements OnBPMListener {
 
     private static final int BAR_WIDTH = 20;
 
-    private static final int PROGRESS_SIZE = 10;
+    private static final int PROGRESS_SIZE = 5;
 
     ShapeDrawable progressBar;
 
