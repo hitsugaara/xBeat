@@ -34,9 +34,9 @@ import android.view.View;
 
 public class ProgressBarView extends View implements OnBPMListener {
 
-    private static final int BAR_WIDTH = 25;
+    private static final int BAR_WIDTH = 20;
 
-    private static final int PROGRESS_SIZE = 15;
+    private static final int PROGRESS_SIZE = 10;
 
     ShapeDrawable progressBar;
 
@@ -47,7 +47,7 @@ public class ProgressBarView extends View implements OnBPMListener {
     // All the sizes are in pixels
     int totalWidth, barHeight, currentBarXPos, beatLength;
 
-    private static int barColor = Color.YELLOW;
+    private static int barColor = Color.WHITE;
 
     private static final int BAR_TRANSPARENCY = 200;
 

@@ -55,6 +55,8 @@ public class Sequencer {
     private int[] samples; // array of samples
 
     private int bpm;
+    
+   
 
     private SoundPool sound;
 
@@ -184,7 +186,7 @@ public class Sequencer {
         // play sound periodically
         playback = new Runnable() {
             int count = 0;
-
+int bpm2 = bpm*2;
             public void run() {
 
                 while (playing) {
@@ -198,7 +200,7 @@ public class Sequencer {
                     }
 
                     count = (count + 1) % beats;
-                    long next = (60 * 1000) / bpm;
+                    long next = (60000) / (bpm2);
                     try {
                         Thread.sleep(next - (System.currentTimeMillis() - millis));
                     } catch (InterruptedException e) {

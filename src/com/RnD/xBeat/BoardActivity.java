@@ -50,7 +50,7 @@ public class BoardActivity extends Activity {
 	private long[] hArray;
 	private long[] sArray;
 	private long[] bbArray;
-	public static final int TOTAL_BEATS = 8;
+	public static final int TOTAL_BEATS = 16;
 	public static final int TOTAL_SAMPLES = 4;
 	private int BPM;
 
@@ -129,6 +129,10 @@ public class BoardActivity extends Activity {
 			startActivityForResult(addColumnActivity, 2);
 			// sequencer.addColumns(amount);
 			break;
+			
+		case R.id.export:
+			Log.e("TEST","Exporting");
+			export();
 		}
 		return false;
 	}
@@ -272,8 +276,11 @@ public class BoardActivity extends Activity {
 				samplersButtons[sample][Counter].setChecked(true);
 				kCounter++;
 			}
-			referenceTime1 += ((60 * 1000) / BPM);
+			referenceTime1 += ((60 * 1000) / (BPM*2));
 			Counter++;
 		}
+	}
+	private void export(){
+		
 	}
 }
