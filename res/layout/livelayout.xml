@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+	android:gravity="bottom|fill_vertical"
+	android:background="@drawable/backback" >
+	
+   <ImageView
+       android:id="@+id/image"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:background="@drawable/back1"
+       android:scaleType="center" />
+
+    <ImageButton
+        android:id="@+id/livesnare"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/livehatc"
+        android:layout_marginLeft="92dp"
+        android:layout_marginTop="38dp"
+        android:layout_toRightOf="@+id/livehato"
+        android:background="@drawable/live_snare" />
+
+    <ImageButton
+        android:id="@+id/livehatc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/livesnare"
+        android:layout_alignTop="@+id/livekick"
+        android:layout_marginLeft="53dp"
+        android:background="@drawable/live_hatc" />
+
+    <ImageButton
+        android:id="@+id/livehato"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/livekick"
+        android:layout_alignTop="@+id/livesnare"
+        android:layout_marginLeft="74dp"
+        android:background="@drawable/live_hato" />
+
+    <ImageButton
+        android:id="@+id/livekick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="184dp"
+        android:layout_marginTop="115dp"
+        android:background="@drawable/live_kick" />
+
+    </RelativeLayout>
