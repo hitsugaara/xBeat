@@ -3,7 +3,13 @@
     android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/White" >
+    android:gravity="bottom|fill_vertical"
+    android:background="@drawable/backback" >
+    <ImageView
+	    android:id="@+id/image"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:background="@drawable/back1" />
 
     <Space
         android:id="@+id/Space1"
@@ -33,8 +39,8 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:background="@drawable/record"
-        android:textOff="Record"
-        android:textOn="Recording" />
+        android:textOff="Rec"
+        android:textOn="Rec-on" />
 
     <ImageButton
         android:id="@+id/Hat"

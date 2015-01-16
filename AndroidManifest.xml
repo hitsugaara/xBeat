@@ -40,16 +40,16 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/CustomButton" >
-        <activity android:name="com.RnD.xBeat.RecordActivity" android:label="@string/app_name" android:screenOrientation="landscape"><intent-filter>
+        <activity android:screenOrientation="landscape" android:name="com.RnD.xBeat.splash"><intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter></activity><activity
+            </intent-filter></activity><activity android:name="com.RnD.xBeat.landingActivity" android:label="@string/app_name" android:screenOrientation="landscape"></activity><activity android:name="com.RnD.xBeat.RecordActivity" android:label="@string/app_name" android:screenOrientation="landscape"></activity><activity
             android:name="com.RnD.xBeat.BoardActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape" >
         </activity>
-        <activity
+        <activity android:name="com.RnD.xBeat.LiveMode" android:screenOrientation="landscape"></activity><activity
             android:name="com.RnD.xBeat.AndroidExplorer"
             android:label="Select file"
             android:screenOrientation="landscape" >
@@ -63,6 +63,10 @@
             android:label="Add column"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
+        <activity android:label="@string/hello" android:name="com.RnD.xBeat.FileSelector" android:screenOrientation="landscape"></activity>
+        
+        
+        
         
     </application>
 

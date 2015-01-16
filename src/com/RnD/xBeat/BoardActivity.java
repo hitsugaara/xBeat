@@ -1,33 +1,16 @@
-/*******************************************************************************
 
-   Copyright: 2011 Android Aalto Community
-
-   This file is part of SoundFuse.
-
-   SoundFuse is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
-
-   SoundFuse is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with SoundFuse; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
- ******************************************************************************/
 
 package com.RnD.xBeat;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Serializable;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -42,6 +25,7 @@ import android.view.MenuItem;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -52,16 +36,18 @@ import com.RnD.xBeat.sequencer.Sequencer;
 
 public class BoardActivity extends Activity {
 	private static final String TAG = "BoardActivity";
-	private static final String expFileDir = android.os.Environment.getExternalStorageDirectory()+"/xBeat";
-	
-	
+	private static final String expFileDir = android.os.Environment
+			.getExternalStorageDirectory() + "/xBeat";
+
 	private long[] kArray;
 	private long[] hArray;
 	private long[] sArray;
 	private long[] bbArray;
+	private String[][] skeleton;
 	public static final int TOTAL_BEATS = 32;
 	public static final int TOTAL_SAMPLES = 4;
 	private int BPM;
+	private String array = null;
 
 	FrameLayout rootLayout;
 
@@ -120,7 +106,7 @@ public class BoardActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.select_sample:
 			// file picker
-			Intent i = new Intent(BoardActivity.this, AndroidExplorer.class);
+			Intent i = new Intent(BoardActivity.this, FileSelector.class);
 			startActivityForResult(i, 0);
 			break;
 		case R.id.toggle_sequencer:
@@ -134,7 +120,6 @@ public class BoardActivity extends Activity {
 			String newBpm = prefs.getString("bpm", "120");
 			Log.e("TEST", "new bpm is " + Integer.parseInt(newBpm));
 			sequencer.setBpm(Integer.parseInt(newBpm));
-			
 			break;
 		case R.id.add_column:
 			Log.e("TEST", "Adding columns");
@@ -143,10 +128,10 @@ public class BoardActivity extends Activity {
 			startActivityForResult(addColumnActivity, 2);
 			// sequencer.addColumns(amount);
 			break;
-			
+
 		case R.id.export:
-			Log.e("TEST","Exporting");
-			export();
+			Log.e("TEST", "Exporting");
+			createDialog();
 		}
 		return false;
 	}
@@ -199,16 +184,22 @@ public class BoardActivity extends Activity {
 		Log.e("TEST", "new bpm is " + Integer.parseInt(newBpm));
 		sequencer.setBpm(Integer.parseInt(newBpm));
 		BPM = Integer.parseInt(newBpm);
-		Bundle extras = getIntent().getExtras();
-		kArray = (extras.getLongArray("kick"));
-		hArray = (extras.getLongArray("hat"));
-		sArray = (extras.getLongArray("snare"));
-		bbArray = (extras.getLongArray("bbrecdata"));
-		quantize(kArray, 0);
-		quantize(bbArray,1);
-		quantize(hArray, 2);
-		quantize(sArray, 3);
-		Log.e("Testing the bbrec array:", ((Long) bbArray[1]).toString());
+		
+
+		if (getIntent().hasExtra("kick")) {
+			Bundle extras = getIntent().getExtras();
+			kArray = (extras.getLongArray("kick"));
+			hArray = (extras.getLongArray("hat"));
+			sArray = (extras.getLongArray("snare"));
+			bbArray = (extras.getLongArray("bbrecdata"));
+			quantize(kArray, 0);
+			quantize(bbArray, 1);
+			quantize(hArray, 2);
+			quantize(sArray, 3);
+			Log.e("Testing the bbrec array:", ((Long) bbArray[1]).toString());
+		} else {
+			importskeleton();
+		}
 	}
 
 	private void createLayouts() {
@@ -251,16 +242,13 @@ public class BoardActivity extends Activity {
 				if (samplePos == 0) {
 					samplersButtons[samplePos][beatPos]
 							.setBackgroundResource(R.drawable.toggle_layer);
-				}
-				else if (samplePos == 1) {
+				} else if (samplePos == 1) {
 					samplersButtons[samplePos][beatPos]
 							.setBackgroundResource(R.drawable.toggle_hato_layer);
-				}
-				else if (samplePos == 2) {
+				} else if (samplePos == 2) {
 					samplersButtons[samplePos][beatPos]
 							.setBackgroundResource(R.drawable.toggle_hatc_sel);
-				}
-				else if (samplePos == 3) {
+				} else if (samplePos == 3) {
 					samplersButtons[samplePos][beatPos]
 							.setBackgroundResource(R.drawable.toggle_snare_layer);
 				}
@@ -282,11 +270,13 @@ public class BoardActivity extends Activity {
 
 	private void quantize(long[] array, int sample) {
 		long referenceTime1 = 0;
-		int Counter = 0, kCounter = 0,bpm2 = BPM*4;
-		float perc=(float) (((1/10)*bpm2));
+		int Counter = 0, kCounter = 0, bpm2 = BPM * 4;
+		float perc = (float) (((1 / 5) * bpm2));
 		while (Counter < TOTAL_BEATS) {
-			if ((array[kCounter] > referenceTime1)
-					&& (array[kCounter] <= (referenceTime1 + ((60000) / bpm2))-perc)) {
+
+			if ((array[kCounter] > referenceTime1+perc)
+					&& (array[kCounter] <= (referenceTime1 + ((60000) / bpm2))
+							-perc)) {
 				sequencer.enableCell(sample, Counter);
 				samplersButtons[sample][Counter].setChecked(true);
 				kCounter++;
@@ -295,48 +285,114 @@ public class BoardActivity extends Activity {
 			Counter++;
 		}
 	}
-	private void export(){
+
+	private void importskeleton() {
+		int i, j;
+		Log.i(TAG, "Getting Bundle");
+		Bundle bun = getIntent().getExtras();
+		Log.i(TAG, "Got Bundle");
+		for (i = 0; i < TOTAL_SAMPLES; i++) {
+			switch (i) {
+			case 0:
+				array = bun.getString("One");
+				Log.i(TAG,"Array is "+array);
+				break;
+			case 1:
+				array = bun.getString("Two");
+				break;
+			case 2:
+				array = bun.getString("Three");
+				break;
+			case 3:
+				array = bun.getString("Four");
+				break;
+			}
+			Log.i(TAG, "Got Strings");
+			for (j = 0; j < TOTAL_BEATS; j++) {
+				
+				if (array.charAt(j) == '1') {
+					Log.i(TAG,"Setting cell");
+					sequencer.enableCell(i, j);
+					samplersButtons[i][j].setChecked(true);
+					Log.i(TAG,"cell Set");
+				}
+			}
+		}
+		Log.i(TAG,"DONE");
+	}
+
+	private void export(String filename) {
 		try {
-			int i=0,j=0;
-            File myFile = new File(expFileDir,"ExportText.txt");
-            if (!myFile.exists()) {
-                myFile.getParentFile().mkdirs();
-                myFile.createNewFile();
-           }
-            FileOutputStream fOut = new FileOutputStream(myFile);
-            OutputStreamWriter myOutWriter = 
-                                    new OutputStreamWriter(fOut);
-            while(i<TOTAL_SAMPLES)
-            {
-            	j=0;
-            	while(j<TOTAL_BEATS)
-            	{
-            		if(samplersButtons[i][j].isChecked())
-            		{
-            			myOutWriter.append("1");
-            			Log.i(TAG,"Wrtten 1 at "+i+" "+j );
-            		}
-            		else
-            		{
-            			myOutWriter.append("0");
-            			Log.i(TAG,"Wrtten 0 at "+i+" "+j );
-            		}
-            		j++;
-            	}
-            	i++;
-            	myOutWriter.append("\n");
-            	Log.i(TAG,"new line after "+i+" "+j );
-            }
-            myOutWriter.append("\n"+((Integer)sequencer.getBpm()).toString());
-            myOutWriter.close();
-            fOut.close();
-            Toast.makeText(getBaseContext(),
-                    "Done writing SD 'exportTest.xb'",
-                    Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(getBaseContext(), e.getMessage(),
-                    Toast.LENGTH_SHORT).show();
-        }
-		
+			int i = 0, j = 0;
+
+			File myFile = new File(expFileDir, filename + ".xbt");
+			if (!myFile.exists()) {
+				myFile.getParentFile().mkdirs();
+				myFile.createNewFile();
+			}
+			FileOutputStream fOut = new FileOutputStream(myFile);
+			OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+			while (i < TOTAL_SAMPLES) {
+				j = 0;
+				while (j < TOTAL_BEATS) {
+					if (samplersButtons[i][j].isChecked()) {
+						myOutWriter.append("1");
+						Log.i(TAG, "Wrtten 1 at " + i + " " + j);
+					} else {
+						myOutWriter.append("0");
+						Log.i(TAG, "Wrtten 0 at " + i + " " + j);
+					}
+					j++;
+				}
+				i++;
+				myOutWriter.append("\n");
+				Log.i(TAG, "new line after " + i + " " + j);
+			}
+			myOutWriter.append(((Integer) sequencer.getBpm()).toString());
+			myOutWriter.close();
+			fOut.close();
+			Toast.makeText(getBaseContext(),
+					"Exported: " + filename + ".xb", Toast.LENGTH_SHORT)
+					.show();
+		} catch (Exception e) {
+			Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT)
+					.show();
+		}
+
+	}
+
+	private void createDialog() {
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+				BoardActivity.this);
+		final EditText input = new EditText(getBaseContext());
+		// set title
+		alertDialogBuilder.setTitle("Le Export");
+
+		// set dialog message
+		alertDialogBuilder
+				.setMessage("Enter File Name")
+				.setView(input)
+				.setCancelable(false)
+				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						// if this button is clicked, close
+						// current activity
+						export(input.getText().toString());
+					}
+				})
+				.setNegativeButton("Cancel",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								// if this button is clicked, just close
+								// the dialog box and do nothing
+								dialog.cancel();
+							}
+						});
+
+		// create alert dialog
+		AlertDialog alertDialog = alertDialogBuilder.create();
+
+		// show it
+		alertDialog.show();
 	}
 }

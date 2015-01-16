@@ -1,24 +1,3 @@
-/*******************************************************************************
-
-   Copyright: 2011 Android Aalto Community
-
-   This file is part of SoundFuse.
-
-   SoundFuse is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
-
-   SoundFuse is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with SoundFuse; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
- ******************************************************************************/
 
 package com.RnD.xBeat;
 
@@ -33,8 +12,15 @@ import android.os.Handler;
 import android.view.View;
 
 public class ProgressBarView extends View implements OnBPMListener {
+	
+	public ProgressBarView(Context context) {
+        super(context);
+        if (!isInEditMode()) {
+            setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        }
+    }
 
-    private static final int BAR_WIDTH = 20;
+    private static final int BAR_WIDTH = 10;
 
     private static final int PROGRESS_SIZE = 5;
 
